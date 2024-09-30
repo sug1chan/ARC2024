@@ -1,4 +1,6 @@
-# arc2023
+# arc2024
+
+ARC2024 の開発リポジトリ。
 
 ## requirements
 
