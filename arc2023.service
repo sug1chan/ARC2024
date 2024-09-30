@@ -1,0 +1,11 @@
+[Unit]
+Description=ARC2023 app
+After=multi-user.target
+
+[Service]
+ExecStart=/usr/bin/python3 /home/arc/ARC2023/source/raspi3/app_main.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
