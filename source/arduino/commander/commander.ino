@@ -20,6 +20,7 @@ int h_move_hld(String &param);
 int h_move_rls(String &param);
 int h_stop(String &param);
 int heater_onoff(String &param);
+int tarbo_onoff(String &param);
 int all_stop(String &param);
 
 // Available command list definition
@@ -136,6 +137,15 @@ int heater_onoff(String &param)
         contrl_heater(false);
     else
         Serial.println("Assert: param = " + param);
+
+    return 0;
+}
+
+int tarbo_onoff(String &param)
+{
+    Serial.println("tarbo_onoff() param: " + param);
+    
+    // TODO: ターボ機能の on/off を制御
 
     return 0;
 }
