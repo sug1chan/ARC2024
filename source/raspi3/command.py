@@ -8,45 +8,48 @@ class Cmd_No:
     EMERGENCY_STOP = 5
 
 # option
-cat_move_opt       = {"left_up"   : 0,
-                      "left_down" : 1,
-                      "left_stop" : 1,
-                      "right_up"  : 2,
-                      "right_down": 3,
-                      "right_stop": 3,}
-cat_slow_mode_opt  = {"on" : 0x01,
-                      "off": 0x00,}
-heater_mode_opt    = {"on" : 0x01,
-                      "off": 0x00,}
-arm_mode_opt       = {"upper": 0x01,
-                      "lower": 0x02,
-                      "stop" : 0x00,}
-emergency_stop_opt = {"do": 0x00,}
+class CAT_MOVE_OPT():
+    l_up   = 0x08
+    l_down = 0x04
+    l_rest = 0x00
+    l_stop = 0x0C
+    r_up   = 0x02
+    r_down = 0x01
+    r_rest = 0x00
+    r_stop = 0x03
 
-class Packet():
-    def __init__(self, cmd_name, cmd_no, opt):
-        self.cmd_name = cmd_name
-        self.cmd_no   = cmd_no
-        self.opt      = opt
+    @classmethod
+    def get_opt(state):
+        opt = 0
+        return opt
 
-    def get_data(self):
-        return array.array('B', [])
+class CAT_SLOW_OPT():
+    on  = 0x01
+    off = 0x00
+
+class HTR_MODE_OPT():
+    on  = 0x01
+    off = 0x00
+
+class ARM_OPT():
+    rest  = 0x00
+    lower = 0x01
+    upper = 0x02
+    stop  = 0x03
+
+class E_STOP_OPT():
+    do = 0
+
 
 class Cmd_Class():
     def __init__(self, name, opt):
         self.name   = name
         self.cmd_no = Cmd_No.__dict__[self.name]
-        self.opt    = opt
+#        self.opt    = opt
         self.struct = struct.Struct(">ii")
 
     def send_cmd(self, opt_arg):
         return self.struct.pack(self.cmd_no, opt_arg)
-
-    def __getattr__(self, opt_arg):
-        if opt_arg not in self.opt:
-            raise Exception("Invalid Option: {}".format(opt_arg))
-
-        self.send_cmd(self.opt[opt_arg])
 
 # Command
 CAT_MOVE       = Cmd_Class("CAT_MOVE",       cat_move_opt)
