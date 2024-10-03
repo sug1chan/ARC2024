@@ -19,7 +19,7 @@ class CAT_MOVE_OPT():
     r_stop = 0x03
 
     @classmethod
-    def get_opt(state):
+    def get_opt(cls, state):
         opt = 0
         return opt
 
