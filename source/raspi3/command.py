@@ -48,7 +48,7 @@ class Cmd_Class():
 #        self.opt    = opt
         self.struct = struct.Struct(">ii")
 
-    def send_cmd(self, opt_arg):
+    def pack(self, opt_arg):
         return self.struct.pack(self.cmd_no, opt_arg)
 
 # Command
