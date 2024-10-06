@@ -150,3 +150,14 @@ class MyController(Controller):
     def on_R2_release(self):
         self.button_status.R2 = False
 
+    def on_R3_press(self, value):
+        return
+
+    def on_L3_press(self, value):
+        return
+
+    def on_R3_release(self, value):
+        return
+
+    def on_L3_release(self, value):
+        return
