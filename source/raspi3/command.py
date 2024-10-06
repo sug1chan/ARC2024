@@ -21,7 +21,7 @@ class CAT_MOVE_OPT():
     fwd    = l_up   | r_up
     bwd    = l_down | r_down
     rtrn   = l_up   | r_down
-    lturn  = l_down | r_up
+    ltrn  = l_down | r_up
     stop   = l_stop | r_stop
     rest   = l_rest | r_rest
 
