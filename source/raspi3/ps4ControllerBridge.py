@@ -28,10 +28,10 @@ class MyController(Controller):
 # ----------------------------------------------------------
 
     def cat_cmd(self):
-        arg   = (self.button_status.up       * CAT_MOVE_OPT.l_up)
-        arg ||= (self.button_status.down     * CAT_MOVE_OPT.l_down)
-        arg ||= (self.button_status.triangle * CAT_MOVE_OPT.r_up)
-        arg ||= (self.button_status.cross    * CAT_MOVE_OPT.r_down)
+        arg  = (self.button_status.up       * CAT_MOVE_OPT.l_up)
+        arg |= (self.button_status.down     * CAT_MOVE_OPT.l_down)
+        arg |= (self.button_status.triangle * CAT_MOVE_OPT.r_up)
+        arg |= (self.button_status.cross    * CAT_MOVE_OPT.r_down)
 
         msg = CAT_MOVE.pack(arg)
         self.cmd.sendMsg(msg)
@@ -45,8 +45,8 @@ class MyController(Controller):
         self.cmd.sendMsg(msg)
 
     def arm_cmd(self):
-        arg   = (self.button_status.L1 * ARM_OPT.upper)
-        arg ||= (self.button_status.L2 * ARM_OPT.lower)
+        arg  = (self.button_status.L1 * ARM_OPT.upper)
+        arg |= (self.button_status.L2 * ARM_OPT.lower)
 
         msg = ARM_MODE.pack(arg)
         self.cmd.sendMsg(msg)
