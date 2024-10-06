@@ -148,7 +148,6 @@ class MyController(Controller):
 
     def on_square_press(self):
         self.button_status.square = True
-        self.heater_cmd()
 
     def on_square_release(self):
         self.button_status.square = False
