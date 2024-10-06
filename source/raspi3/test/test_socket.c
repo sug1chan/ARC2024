@@ -153,12 +153,11 @@ void main_app(int32_t sock) {
                 printf("command = %s, opr = %s\n", get_cmd(res.cmd), p);
 
                 cbuf += sizeof(struct command);
-
-                if (cbuf >= ebuf)
-                    cbuf = nbuf = cbuf;
             } else
                 break;
         }
+        if (cbuf >= ebuf)
+            cbuf = nbuf = sbuf;
     }
     close(sock);
 }
