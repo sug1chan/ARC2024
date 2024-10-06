@@ -18,10 +18,12 @@ class CAT_MOVE_OPT():
     r_rest = 0x00
     r_stop = 0x03
 
-    @classmethod
-    def get_opt(cls, state):
-        opt = 0
-        return opt
+    fwd    = l_up   | r_up
+    bwd    = l_down | r_down
+    rtrn   = l_up   | r_down
+    lturn  = l_down | r_up
+    stop   = l_stop | r_stop
+    rest   = l_rest | r_rest
 
 class CAT_SLOW_OPT():
     on  = 0x01

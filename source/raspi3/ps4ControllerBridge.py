@@ -14,11 +14,13 @@ class Button:
     L2       = False
     R1       = False
     R2       = False
+    play     = False
 
 class MyController(Controller):
     def __init__(self, com, **kwargs):
         Controller.__init__(self, **kwargs)
         self.button_status = Button()
+        self.legacy_mode = 0
         # 0:up, 1:down, 2:left, 3:right, 
         # 4:triangle, 5:cross, 6:square, 7:circle, 
         # 8:L1, 9:L2, 10:R1, 11:R2
@@ -64,29 +66,69 @@ class MyController(Controller):
         self.com.sendMsg(msg)
 
 # ----------------------------------------------------------
+# legacy mode
+
+    def legacy_cat_cmd(self, arg):
+        msg = CAT_MOVE.pack(arg)
+        self.com.sendMsg(msg)
+
+    def legacy_heater_mode(self, arg):
+        msg = HEATER_MODE.pack(arg)
+        self.com.sendMsg(msg)
+
+    def legacy_arm_cmd(self, arg):
+        msg = ARM_MODE.pack(arg)
+        self.com.sendMsg(msg)
+
+    def legacy_slow_mode(self, arg):
+        msg = CAT_SLOW_MODE.pack(arg)
+        self.com.sendMsg(msg)
+
+# ----------------------------------------------------------
 
     def on_up_arrow_press(self):
         self.button_status.up = True
-        self.cat_cmd()
+
+        if self.legacy_mode:
+            self.legacy_cat_cmd(CAT_MOVE_OPT.fwd)
+        else:
+            self.cat_cmd()
 
     def on_down_arrow_press(self):
         self.button_status.down = True
-        self.cat_cmd()
+
+        if self.legacy_mode:
+            self.legacy_cat_cmd(CAT_MOVE_OPT.bwd)
+        else:
+            self.cat_cmd()
 
     def on_up_down_arrow_release(self):
         self.button_status.up   = False
         self.button_status.down = False
-        self.cat_cmd()
+
+        if self.legacy_mode:
+            self.legacy_cat_cmd(CAT_MOVE_OPT.rest)
+        else:
+            self.cat_cmd()
 
     def on_left_arrow_press(self):
         self.button_status.left = True
 
+        if self.legacy_mode:
+            self.legacy_cat_cmd(CAT_MOVE_OPT.ltrn)
+
     def on_right_arrow_press(self):
         self.button_status.right = True
+
+        if self.legacy_mode:
+            self.legacy_cat_cmd(CAT_MOVE_OPT.rtrn)
 
     def on_left_right_arrow_release(self):
         self.button_status.left  = False
         self.button_status.right = False
+
+        if self.legacy_mode:
+            self.legacy_cat_cmd(CAT_MOVE_OPT.rest)
 
     def on_triangle_press(self):
         self.button_status.triangle = True
@@ -150,6 +192,13 @@ class MyController(Controller):
 
     def on_R2_release(self):
         self.button_status.R2 = False
+
+    def on_playstation_button_press(self):
+        self.button_status.play = True
+        self.legacy_mode ^= 1
+
+    def on_playstation_button_release(self):
+        self.button_status.play = False
 
 # ----------------------------------------------------------
 
