@@ -34,7 +34,7 @@ class MyController(Controller):
         arg |= (self.button_status.cross    * CAT_MOVE_OPT.r_down)
 
         msg = CAT_MOVE.pack(arg)
-        self.cmd.sendMsg(msg)
+        self.com.sendMsg(msg)
 
     def heater_cmd(self):
         if self.button_status.circle:
@@ -42,14 +42,14 @@ class MyController(Controller):
         else:
             msg = HEATER_MODE.pack(HTR_MODE_OPT.off)
 
-        self.cmd.sendMsg(msg)
+        self.com.sendMsg(msg)
 
     def arm_cmd(self):
         arg  = (self.button_status.L1 * ARM_OPT.upper)
         arg |= (self.button_status.L2 * ARM_OPT.lower)
 
         msg = ARM_MODE.pack(arg)
-        self.cmd.sendMsg(msg)
+        self.com.sendMsg(msg)
 
     def slow_cmd(self):
         if self.button_status.R1:
@@ -57,11 +57,11 @@ class MyController(Controller):
         else:
             msg = CAT_SLOW_MODE.pack(CAT_SLOW_OPT.off)
 
-        self.cmd.sendMsg(msg)
+        self.com.sendMsg(msg)
 
     def emer_cmd(self):
         msg = EMERFENCY_STOP.pack(E_STOP_OPT.do)
-        self.cmd.sendMsg(msg)
+        self.com.sendMsg(msg)
 
 # ----------------------------------------------------------
 
