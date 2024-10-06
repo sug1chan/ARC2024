@@ -42,21 +42,20 @@ class E_STOP_OPT():
 
 
 class Cmd_Class():
-    def __init__(self, name, opt):
+    def __init__(self, name):
         self.name   = name
         self.cmd_no = Cmd_No.__dict__[self.name]
-#        self.opt    = opt
         self.struct = struct.Struct(">ii")
 
     def pack(self, opt_arg):
         return self.struct.pack(self.cmd_no, opt_arg)
 
 # Command
-CAT_MOVE       = Cmd_Class("CAT_MOVE",       cat_move_opt)
-CAT_SLOW_MODE  = Cmd_Class("CAT_SLOW_MODE",  cat_slow_mode_opt)
-HEATER_MODE    = Cmd_Class("HEATER_MODE",    heater_mode_opt)
-ARM_MODE       = Cmd_Class("ARM_MODE",       arm_mode_opt)
-EMERGENCY_STOP = Cmd_Class("EMERGENCY_STOP", emergency_stop_opt)
+CAT_MOVE       = Cmd_Class("CAT_MOVE")
+CAT_SLOW_MODE  = Cmd_Class("CAT_SLOW_MODE")
+HEATER_MODE    = Cmd_Class("HEATER_MODE")
+ARM_MODE       = Cmd_Class("ARM_MODE")
+EMERGENCY_STOP = Cmd_Class("EMERGENCY_STOP")
 
 
 # ------- debug function ------------------------
