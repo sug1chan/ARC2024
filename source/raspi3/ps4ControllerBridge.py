@@ -127,8 +127,9 @@ class MyController(Controller):
         self.arm_cmd()
 
     def on_L2_press(self, value):
-        self.button_status.L2 = True
-        self.arm_cmd()
+        if self.button_status.L2 is False:
+            self.button_status.L2 = True
+            self.arm_cmd()
 
     def on_L2_release(self):
         self.button_status.L2 = False
@@ -143,7 +144,8 @@ class MyController(Controller):
         self.slow_cmd()
 
     def on_R2_press(self, value):
-        self.button_status.R2 = True
+        if self.button_status.R2 is False:
+            self.button_status.R2 = True
 
     def on_R2_release(self):
         self.button_status.R2 = False
