@@ -117,6 +117,7 @@ class MyController(Controller):
 
     def on_circle_release(self):
         self.button_status.circle = False
+        self.heater_cmd()
 
     def on_L1_press(self):
         self.button_status.L1 = True
@@ -149,6 +150,8 @@ class MyController(Controller):
 
     def on_R2_release(self):
         self.button_status.R2 = False
+
+# ----------------------------------------------------------
 
     def on_L3_up(self, value):
         pass
