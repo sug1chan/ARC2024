@@ -107,7 +107,8 @@ class MyController(Controller):
         self.button_status.down = False
 
         if self.legacy_mode:
-            self.legacy_cat_cmd(CAT_MOVE_OPT.rest)
+            if not (self.button_status.left or self.button_status.right):
+                self.legacy_cat_cmd(CAT_MOVE_OPT.rest)
         else:
             self.cat_cmd()
 
@@ -128,23 +129,32 @@ class MyController(Controller):
         self.button_status.right = False
 
         if self.legacy_mode:
-            self.legacy_cat_cmd(CAT_MOVE_OPT.rest)
+            if not (self.button_status.up or self.button_status.down):
+                self.legacy_cat_cmd(CAT_MOVE_OPT.rest)
 
     def on_triangle_press(self):
         self.button_status.triangle = True
-        self.cat_cmd()
+
+        if not self.legacy_mode:
+            self.cat_cmd()
 
     def on_triangle_release(self):
         self.button_status.triangle = False
-        self.cat_cmd()
+
+        if not self.legacy_mode:
+            self.cat_cmd()
 
     def on_x_press(self):
         self.button_status.cross = True
-        self.cat_cmd()
+
+        if not self.legacy_mode:
+            self.cat_cmd()
 
     def on_x_release(self):
         self.button_status.cross = False
-        self.cat_cmd()
+
+        if not self.legacy_mode:
+            self.cat_cmd()
 
     def on_square_press(self):
         self.button_status.square = True
