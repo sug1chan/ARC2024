@@ -34,12 +34,14 @@ void main_app(int32_t);
 
 void itob(int32_t b, uint8_t *res) {
     int32_t bit[33];
-    int32_t count = 0;
+    int32_t count = 0, min_count = 8;
 
-    while (b > 0) {
+    while (min_count --) {
         bit[count++] = b % 2;
         b /= 2;
     }
+
+
 
     res[count] = '\0';
     int32_t bit_i, res_i;
