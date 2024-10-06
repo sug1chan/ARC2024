@@ -150,14 +150,51 @@ class MyController(Controller):
     def on_R2_release(self):
         self.button_status.R2 = False
 
-    def on_R3_press(self, value):
-        return
+    def on_L3_up(self, value):
+        pass
 
-    def on_L3_press(self, value):
-        return
+    def on_L3_down(self, value):
+        pass
 
-    def on_R3_release(self, value):
-        return
+    def on_L3_left(self, value):
+        pass
 
-    def on_L3_release(self, value):
-        return
+    def on_L3_right(self, value):
+        pass
+
+    def on_L3_y_at_rest(self):
+        pass
+
+    def on_L3_x_at_rest(self):
+        pass
+
+    def on_L3_press(self):
+        pass
+
+    def on_L3_release(self):
+        pass
+
+    def on_R3_up(self, value):
+        pass
+
+    def on_R3_down(self, value):
+        pass
+
+    def on_R3_left(self, value):
+        pass
+
+    def on_R3_right(self, value):
+        pass
+
+    def on_R3_y_at_rest(self):
+        pass
+
+    def on_R3_x_at_rest(self):
+        pass
+
+    def on_R3_press(self):
+        pass
+
+    def on_R3_release(self):
+        pass
+
