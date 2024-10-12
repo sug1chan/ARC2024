@@ -1,5 +1,4 @@
 #include <Ethernet2.h>
-#include "main.h"
 #include "commander.h"
 
 #define MAX_BUF_LEN 8
