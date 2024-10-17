@@ -1,3 +1,21 @@
+#define	RIGHT_NORMAL	(1U)			/*	右車輪前進				*/
+#define	RIGHT_REVERSE	(2U)			/*	右車輪後進				*/
+#define	LEFT_NORMAL		(4U)			/*	左車輪前進				*/
+#define	LEFT_REVERSE	(8U)			/*	左車輪後進				*/
+#define	LR_NUM			(4U)			/*	テーブルの最大値		*/
+
+#define	CAT_NORMAL		(255U)			/*	キャタピラの速度_通常	*/
+#define	CAT_SLOW		(100U)			/*	キャタピラの速度_スロー	*/
+#define	CAT_NONE		(0U)			/*	キャタピラの速度_スロー	*/
+
+
+#define CAT_MODE_NORMAL	(0U)			/*	キャタピラモード_スロー	*/
+#define CAT_MODE_SLOW	(1U)			/*	キャタピラモード_スロー	*/
+
+
+#define	HEATER_OFF		(0U)			/*	ヒーターOFF				*/
+#define	HEATER_ON		(1U)			/*	ヒーターON				*/
+
 typedef int(*cmd_func)(int);
 struct cmd_list {
     String cmd_name;
@@ -28,9 +46,8 @@ int cmd_emergency_stop(int);
 
 const struct cmd_list recv_cmd_list[CMD_MAX] = {
     [CAT_MOVE]       = {"CAT_MOVE",       cmd_move_catepillar},
-    [CAT_SLOW_MODE]  = {"CAT_SLOW_MODE",  cmd_changeslow_mode},
+    [CAT_SLOW_MODE]  = {"CAT_SLOW_MODE",  cmd_change_slowmode},
     [HEATER_MODE]    = {"HEATER_MODE",    cmd_turn_onoff_heater},
     [ARM_MOVE]       = {"ARM_MOVE",       cmd_move_arm},
     [EMERGENCY_STOP] = {"EMERGENCY_STOP", cmd_emergency_mode},
 }
-
