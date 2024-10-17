@@ -12,12 +12,11 @@ IPAddress gateway(192, 168, 5, 10);
 EthernetServer socketServer(55555);
 
 uint8_t buf[MAX_BUF_LEN];
-int32_t ibuf;
+int32_t ibuf = 0;
+
+void buf_init();
 
 void setup() {
-  memset(buf, 0, sizeof buf);
-  ibuf = 0;
-
   Ethernet.begin(mac, ip, gateway, subnet);
   socketServer.begin();
   Serial.begin(9600);
@@ -28,20 +27,32 @@ void loop() {
   EthernetClient client = socketServer.available();
 
   if (client) {
-    buf[ibuf++] = client.read();
+    buf_init();
 
-    if (ibuf >= 8) {
-      // parse buf;
-      parse(buf, ibuf, &res);
-      ibuf = 0;
+    while (client.connected()) {
+      if(client.available()) {
+        buf[ibuf++] = client.read();
 
-      if (!(0 <= res.cmd && res.cmd < CMD_MAX)) {
-        Serial.println("Error: Invalid Cmd No.: %d !\n", res.cmd);
-        return;
+        if (ibuf >= 8) {
+          parse(buf, ibuf, &res);
+          ibuf = 0;
+        }
+
+        if (!(0 <= res.cmd && res.cmd < CMD_MAX)) {
+          Serial.println("Error: Invalid Cmd No.: %d !\n", res.cmd);
+        } else {
+          struct cmd_list cmd = recv_cmd_list[res.cmd];
+          Serial.println("Recv Command: %s, opt = %x\n", cmd.cmd_name, res.opt);
+          cmd.cmd_func(res.opt);
+        }
       }
-      struct cmd_list cmd = recv_cmd_list[res.cmd];
-      Serial.println("Recv Command: %s, opt = %x\n", cmd.cmd_name, res.opt);
-      cmd.cmd_func(res.opt);
     }
+
+    client.stop();
   }
+}
+
+void buf_init() {
+  memset(buf, 0, sizeof buf);
+  ibuf = 0;
 }
