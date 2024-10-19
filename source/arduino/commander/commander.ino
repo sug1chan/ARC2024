@@ -1,5 +1,4 @@
 #include "commander.h"
-#include "operate.h"
 
 int cmd_move_catepillar(int opt) {
     return 0;

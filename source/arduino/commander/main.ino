@@ -1,5 +1,6 @@
 #include <Ethernet2.h>
-#include "commander.h"
+// #include "commander.h"
+#include "parse.h"
 
 #define MAX_BUF_LEN 8
 
@@ -23,7 +24,7 @@ void setup() {
 }
 
 void loop() {
-  struct command_packet res;
+  struct cmd_packet res;
   EthernetClient client = socketServer.available();
 
   if (client) {
@@ -39,10 +40,10 @@ void loop() {
         }
 
         if (!(0 <= res.cmd && res.cmd < CMD_MAX)) {
-          Serial.println("Error: Invalid Cmd No.: %d !\n", res.cmd);
+          //Serial.println("Error: Invalid Cmd No.: %d !\n", res.cmd);
         } else {
-          struct cmd_list cmd = recv_cmd_list[res.cmd];
-          Serial.println("Recv Command: %s, opt = %x\n", cmd.cmd_name, res.opt);
+          struct cmd_func_list cmd = recv_cmd_list[res.cmd];
+          //Serial.println("Recv Command: %s, opt = %x\n", cmd.cmd_name, res.opt);
           cmd.cmd_func(res.opt);
         }
       }
