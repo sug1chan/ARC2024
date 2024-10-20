@@ -6,24 +6,20 @@
 #include <arpa/inet.h>
 #include "send_command.h"
 
+// for debug param
+int32_t is_once = 1;
+int32_t loop = 1;
+
 #define PORT 55555
+// #define REMOTE_ADDR "127.0.0.1"
 #define REMOTE_ADDR "192.168.5.10"
 
-void perr(char *p) {
-    perror(p);
-    exit(EXIT_FAILURE);
-}
-
-void (* dbg_func[CMD_MAX]) (int32_t) = {
-    &dbg_catepillar,
-    &dbg_showmode,
-    &dbg_heater,
-    &dbg_arm
-};
+void start_debug(int32_t sf);
+/* void perr(uint8_t *); */
 
 int32_t *opt_list[CMD_MAX] = {
     opt_catepillar,
-    opt_showmode,
+    opt_slowmode,
     opt_heater,
     opt_arm,
 };
@@ -58,11 +54,19 @@ int32_t main() {
 }
 
 void start_debug(int32_t sf) {
-    while (1) {
-        int32_t i;
+    int once = 1;
+    while (once && loop) {
+        int32_t i, j;
 
         for (i = 0; i < 4; i ++) {
-
+            for (j = 0; j < opt_size[i]; j ++) {
+                int _opt = opt_list[i][j];
+                dbg(sf, i, _opt);
+            }
+        }
+        if (is_once) {
+            once = 0;
         }
     }
+    sleep(10);
 }

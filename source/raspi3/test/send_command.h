@@ -13,13 +13,18 @@ struct cmd_format {
 struct cmd {
     uint8_t *name;
     int32_t no;
-}
+};
 
 struct cmd cmd_list[] = {
     {"CAT_MOVE",      1},
     {"CAT_SLOW_MODE", 2},
     {"HEATER_MODE",   3},
     {"ARM_MODE",      4}
+};
+
+void perr(char *p) {
+    perror(p);
+    exit(EXIT_FAILURE);
 }
 
 void show_dbg(struct cmd c, int32_t opt) {
@@ -27,20 +32,19 @@ void show_dbg(struct cmd c, int32_t opt) {
 }
 
 void send_cmd(int32_t sf, struct cmd c, int32_t opt) {
+    struct cmd_format data;
+    data.cmd = htonl(c.no);
+    data.opt = htonl(opt);
+    if (send(sf, &data, sizeof data, 0) < 0) {
+        perr("send() failed");
+    }
 }
 
-void dbg_catepillar(int32_t opt) {
+void dbg(int32_t sf, int32_t index, int32_t opt) {
+    struct cmd c = cmd_list[index];
+    show_dbg(c, opt);
+    send_cmd(sf, c, opt);
 }
-
-void dbg_showmode(int32_t opt) {
-}
-
-void dbg_heater(int32_t opt) {
-}
-
-void dbg_arm(int32_t opt) {
-}
-
 
 int32_t opt_catepillar[LIST_CAT_SIZE] = {
     0b1010,
@@ -64,4 +68,3 @@ int32_t opt_arm[LIST_ARM_SIZE] = {
     0b0001,
     0b0000
 };
-
