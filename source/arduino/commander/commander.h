@@ -1,18 +1,23 @@
-typedef int(*cmd_func)(int);
-struct cmd_list {
+typedef int32_t(*cmd_func)(int32_t);
+struct cmd_func_list {
     String cmd_name;
     cmd_func cmd_func;
-}
+};
 
-enum Command {
-    CMD_NONE = 0,
-    CAT_MOVE,
-    CAT_SLOW_MODE,
-    HEATER_MODE,
-    ARM_MOVE,
-    EMERGENCY_STOP,
-    CMD_MAX
-}
+typedef struct{
+    short ln;
+    short lr;
+    short rn;
+    short rr;
+} signal;
+
+#define CMD_NONE        0
+#define CAT_MOVE        1
+#define CAT_SLOW_MODE   2
+#define HEATER_MODE     3
+#define ARM_MOVE        4
+#define EMERGENCY_STOP  5
+#define CMD_MAX         6
 
 
 // Command Function
@@ -26,11 +31,10 @@ int cmd_emergency_stop(int);
 
 // Command Function List
 
-const struct cmd_list recv_cmd_list[CMD_MAX] = {
-    [CAT_MOVE]       = {"CAT_MOVE",       cmd_move_catepillar},
-    [CAT_SLOW_MODE]  = {"CAT_SLOW_MODE",  cmd_changeslow_mode},
-    [HEATER_MODE]    = {"HEATER_MODE",    cmd_turn_onoff_heater},
-    [ARM_MOVE]       = {"ARM_MOVE",       cmd_move_arm},
-    [EMERGENCY_STOP] = {"EMERGENCY_STOP", cmd_emergency_mode},
-}
-
+const struct cmd_func_list recv_cmd_list[CMD_MAX] = {
+    {"CAT_MOVE",       cmd_move_catepillar},
+    {"CAT_SLOW_MODE",  cmd_change_slowmode},
+    {"HEATER_MODE",    cmd_turn_onoff_heater},
+    {"ARM_MOVE",       cmd_move_arm},
+    {"EMERGENCY_STOP", cmd_emergency_stop}
+};
