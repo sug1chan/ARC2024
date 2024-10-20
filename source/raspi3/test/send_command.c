@@ -68,5 +68,6 @@ void start_debug(int32_t sf) {
             once = 0;
         }
     }
-    sleep(10);
+//    sleep(10);
 }
+
