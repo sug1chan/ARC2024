@@ -26,6 +26,7 @@ int cmd_emergency_stop(int);
 // Command Function List
 
 const struct cmd_func_list recv_cmd_list[CMD_MAX] = {
+    {"CMD_NONE",       NULL},
     {"CAT_MOVE",       cmd_move_catepillar},
     {"CAT_SLOW_MODE",  cmd_change_slowmode},
     {"HEATER_MODE",    cmd_turn_onoff_heater},
