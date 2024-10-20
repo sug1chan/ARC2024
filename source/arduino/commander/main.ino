@@ -1,8 +1,10 @@
 #include <Ethernet2.h>
-// #include "commander.h"
+#include "commander.h"
 #include "parse.h"
 
 #define MAX_BUF_LEN 8
+
+const int32_t debug = 1;
 
 byte mac[] = {
   0x90, 0xA2, 0xDA, 0x10, 0xE8, 0x7F
@@ -16,6 +18,7 @@ uint8_t buf[MAX_BUF_LEN];
 int32_t ibuf = 0;
 
 void buf_init();
+void show_data(String, int32_t);
 
 void setup() {
   Ethernet.begin(mac, ip, gateway, subnet);
@@ -43,8 +46,9 @@ void loop() {
           //Serial.println("Error: Invalid Cmd No.: %d !\n", res.cmd);
         } else {
           struct cmd_func_list cmd = recv_cmd_list[res.cmd];
+          show_data(cmd.cmd_name, res.opt);
           //Serial.println("Recv Command: %s, opt = %x\n", cmd.cmd_name, res.opt);
-          cmd.cmd_func(res.opt);
+          // cmd.cmd_func(res.opt);
         }
       }
     }
@@ -56,4 +60,11 @@ void loop() {
 void buf_init() {
   memset(buf, 0, sizeof buf);
   ibuf = 0;
+}
+
+void show_data(String name, int32_t opt) {
+    Serial.println("Recv Command: ");
+    Serial.println(name);
+    Serial.print("opt");
+    Serial.println(opt);
 }
