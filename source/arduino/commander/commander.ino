@@ -1,13 +1,35 @@
+//#include "commander.h"
 #include "operate.h"
+/********************************************/
+/*		DEFINE_ARRAY&STRUCT_START			        */
+/********************************************/
+static int pwm_right_normal, pwm_right_reverse, pwm_left_normal, pwm_left_reverse;
+static int is_slow_mode = 0;
+static int old_opt = 0;
 
-// parser
-typedef struct {
-    short ln;
-    short lr;
-    short rn;
-    short rr;
-} signal;
+typedef struct
+{
+	int lrMove;													/*	キャタピラのパワー(固定値)	*/
+	int pwmCatMove;												/*	キャタピラのパワー(変数)	*/
+}lrcat;
 
+
+static lrcat lrnorev[LR_NUM]=									/*	ビット位置の配列			*/
+{
+	{RIGHT_NORMAL	,	pwm_right_normal	},
+	{RIGHT_REVERSE,	pwm_right_reverse	},
+	{LEFT_NORMAL	,	pwm_left_normal		},
+	{LEFT_REVERSE	,	pwm_left_reverse	}
+};
+
+/********************************************/
+/*		DEFINE_ARRAY&STRUCT_END				        */
+/********************************************/
+
+
+/********************************************/
+/*		DEFINE_FUNCTION_PROTOTYPE_START		    */
+/********************************************/
 void get_cmd(opr op, signal* sig);
 
 void DEBUG_FUNCNAME(char* name);
@@ -16,8 +38,17 @@ void DEBUG_PARAM(int pwm_normal, int pwm_reverse);
 void DEBUG_PARAMRIGHT(int pwm_normal, int pwm_reverse);
 void DEBUG_PARAMLEFT(int pwm_normal, int pwm_reverse);
 void DEBUG_HEATER(bool is_on);
+/********************************************/
+/*		DEFINE_FUNCTION_PROTOTYPE_END		      */
+/********************************************/
 
-// setup
+
+/********************************************/
+/*		DEFINE_FUNCTION_START				          */
+/********************************************/
+/*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
+/*_		各ピン初期化処理用関数				         _*/
+/*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
 void init_pinMode(void) {
     // pin mode
     Serial.println("init pinMode: Start");
@@ -37,138 +68,116 @@ void init_robot_operate(void) {
     contrl_robot_arm(ARM_STOP);
     return;
 }
-
-// operate
-
-bool contrl_catepillar(opr op) {
-    // control catepillar!
-    signal sig;
-    int pwm_left_normal, pwm_left_reverse, pwm_right_normal, pwm_right_reverse;
-
-//    Serial.println(CTPL_STOP, BIN);
-    if (op == CTPL_STOP) {
-        pwm_left_normal     = 255;
-        pwm_left_reverse    = 255;
-        pwm_right_normal    = 255;
-        pwm_right_reverse   = 255;
-//        analogWrite(L_CATEPILLAR    , 255);
-//        analogWrite(L_CATEPILLAR_REV, 255);
-//        analogWrite(R_CATEPILLAR    , 255);
-//        analogWrite(R_CATEPILLAR_REV, 255);
-    } else {
-        get_cmd(op, &sig);
-
-        pwm_left_normal     = PWM_L_CATE_DEFAULT     * sig.ln;
-        pwm_left_reverse    = PWM_L_CATE_REV_DEFAULT * sig.lr;
-        pwm_right_normal    = PWM_R_CATE_DEFAULT     * sig.rn;
-        pwm_right_reverse   = PWM_R_CATE_REV_DEFAULT * sig.rr;
-    }
-
-    // logging
-    DEBUG_FUNCNAME("contrl_catepillar");
-    DEBUG_PARAMLEFT(pwm_left_normal,   pwm_left_reverse);
-    DEBUG_PARAMRIGHT(pwm_right_normal, pwm_right_reverse);
-
-//    get_cmd(op, &sig);
-
-    // operate DC Morter
-    analogWrite(L_CATEPILLAR    , pwm_left_normal  );
-    analogWrite(L_CATEPILLAR_REV, pwm_left_reverse );
-    analogWrite(R_CATEPILLAR    , pwm_right_normal );
-    analogWrite(R_CATEPILLAR_REV, pwm_right_reverse);
-
-    return true;
+/*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
+/*_		キャタピラ動作用関数				           _*/
+/*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
+int cmd_move_catepillar(int opt) {
+	for(int i = 0;i < LR_NUM;i++){
+		if((opt & lrnorev[i].lrMove) == lrnorev[i].lrMove){			/*ビットが立っている場合				*/
+			if(is_slow_mode == CAT_MODE_SLOW){
+				lrnorev[i].pwmCatMove = CAT_SLOW;					/*スロー出力を入れる					*/
+			}else{
+				lrnorev[i].pwmCatMove = CAT_NORMAL;					/*ノーマル出力を入れる					*/
+			}
+		}else{
+			lrnorev[i].pwmCatMove = CAT_NONE;						/*出力なしを入れる						*/
+		}
+	}
+	// logging
+	DEBUG_FUNCNAME("contrl_catepillar");
+	DEBUG_PARAMLEFT(lrnorev[2].pwmCatMove,   lrnorev[3].pwmCatMove);
+	DEBUG_PARAMRIGHT(lrnorev[0].pwmCatMove, lrnorev[1].pwmCatMove);
+	
+	// operate DC Morter
+	analogWrite(L_CATEPILLAR	, lrnorev[2].pwmCatMove);
+	analogWrite(L_CATEPILLAR_REV, lrnorev[3].pwmCatMove);
+	analogWrite(R_CATEPILLAR	, lrnorev[1].pwmCatMove);
+	analogWrite(R_CATEPILLAR_REV, lrnorev[0].pwmCatMove);
+	
+  old_opt = opt;
+	return 0;
 }
 
-bool contrl_robot_arm(opr op) {
-    // control robot arm!
-    signal sig;
-    int pwm_normal, pwm_reverse;
+/*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
+/*_		キャタピラスローモード動作用関数	      _*/
+/*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
+int cmd_change_slowmode(int opt) {
+	// slow mode
+	DEBUG_FUNCNAME("slow_mode");
 
-    if (op == ARM_STOP) {
-        pwm_normal  = 255;
-        pwm_reverse = 255;
-//        analogWrite(ROBOT_ARM_UP  , 255);
-//        analogWrite(ROBOT_ARM_DOWN, 255);
-    } else {
-        get_cmd(op, &sig);
-
-        pwm_normal  = PWM_ARM_DEFAULT     * sig.rn;
-        pwm_reverse = PWM_ARM_REV_DEFAULT * sig.rr;
-    }
-
-    // log
-    DEBUG_FUNCNAME("contrl_robot_arm");
-    DEBUG_PARAMLEFT(pwm_normal,  pwm_reverse);
-
-    //get_cmd(op, &sig);
-
-    // TODO: analogwrite
-    analogWrite(ROBOT_ARM_UP  , pwm_normal);
-    analogWrite(ROBOT_ARM_DOWN, pwm_reverse);
-    return true;
+	if(opt == CAT_MODE_SLOW){
+		is_slow_mode = 1;
+	}else{
+		is_slow_mode = 0;
+	}
+	cmd_move_catepillar(old_opt);
+	return 0;
 }
 
-bool contrl_robot_hand(opr op) {
-    // control robot hand
-    signal sig;
-    int pwm_normal, pwm_reverse;
+/*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
+/*_		ヒーターONOFF用関数					           _*/
+/*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
+int cmd_turn_onoff_heater(int opt){
+	// control heater
+	DEBUG_FUNCNAME("contrl_heater");
 
-    if (op == HAND_STOP) {
-        pwm_normal  = 255;
-        pwm_reverse = 255;
-        //analogWrite(ROBOT_HAND_OPEN,  255);
-        //analogWrite(ROBOT_HAND_CLOSE, 255);
-        //return true;
-    } else {
-        get_cmd(op, &sig);
-
-        pwm_normal  = PWM_HAND_DEFAULT     * sig.rn;
-        pwm_reverse = PWM_HAND_REV_DEFAULT * sig.rr;
-    }
-
-    // log
-    DEBUG_FUNCNAME("contrl_robot_hand");
-    DEBUG_PARAM(pwm_normal,  pwm_reverse);
-
-//    get_cmd(op, &sig);
-
-    analogWrite(ROBOT_HAND_OPEN,  pwm_normal);
-    analogWrite(ROBOT_HAND_CLOSE, pwm_reverse);
-    return true;
+	if (opt == HEATER_ON) {
+		Serial.println("    HEATER          : ON");
+		digitalWrite(HEATER, HIGH);
+	} else {
+		Serial.println("    HEATER          : OFF");
+		digitalWrite(HEATER, LOW);
+	}
+	return 0;
 }
 
-bool contrl_heater(bool is_on) {
-    // control heater
-    DEBUG_FUNCNAME("contrl_heater");
+/*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
+/*_		アーム動作用関数					             _*/
+/*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
+int cmd_move_arm(int opt) {
+	// control robot arm!
+	signal sig;
+	int pwm_normal, pwm_reverse;
 
-    if (is_on) {
-        Serial.println("    HEATER          : ON");
-        digitalWrite(HEATER, HIGH);
-//        digitalWrite(HEATER1, HIGH);
-//        digitalWrite(HEATER2, HIGH);
-    } else {
-        Serial.println("    HEATER          : OFF");
-        digitalWrite(HEATER, LOW);
-//        digitalWrite(HEATER1, LOW);
-//        digitalWrite(HEATER2, LOW);
-    }
+	if (opt == ARM_STOP) {
+		pwm_normal  = 255;
+		pwm_reverse = 255;
+	} else {
+		get_cmd(opt, &sig);
+	
+		pwm_normal  = PWM_ARM_DEFAULT     * sig.rn;
+		pwm_reverse = PWM_ARM_REV_DEFAULT * sig.rr;
+	}
 
-    return true;
+	// log
+	DEBUG_FUNCNAME("contrl_robot_arm");
+	DEBUG_PARAMLEFT(pwm_normal,  pwm_reverse);
+
+	//get_cmd(op, &sig);
+
+	// TODO: analogwrite
+	analogWrite(ROBOT_ARM_UP  , pwm_normal);
+	analogWrite(ROBOT_ARM_DOWN, pwm_reverse);
+	return 0;
 }
 
-// emergency stop
-void emergency_stop() {
-    contrl_heater(false);
-    contrl_robot_hand(HAND_REST);
-    contrl_robot_arm(ARM_REST);
-    contrl_catepillar(CTPL_REST);
-    return true;
+
+/*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
+/*_		緊急停止用関数						             _*/
+/*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
+int cmd_emergency_stop(int opt) {
+	cmd_move_catepillar(CAT_NONE);
+	cmd_change_slowmode(CAT_MODE_NORMAL);
+	cmd_turn_onoff_heater(HEATER_OFF);
+	cmd_move_arm(ARM_STOP);
+	return 0;
 }
 
-// function
 
-void get_cmd(opr op, signal* sig) {
+/*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
+/*_		コマンド計算用関数                 	   _*/
+/*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
+void get_cmd(int op, signal* sig) {
     char ln, lr, rn, rr;
 
     ln = (op & OPR_L_NORMAL)  == OPR_L_NORMAL;
@@ -185,45 +194,72 @@ void get_cmd(opr op, signal* sig) {
     return;
 }
 
-// logging
+/********************************************/
+/*			DEFINE_FUNCTION_END		          		*/
+/********************************************/
+
+
+
+/********************************************/
+/*		DEFINE_LOGGING_FUNCTION_START	       	*/
+/********************************************/
+
+/*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
+/*_		機能名確認用関数					             _*/
+/*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
 void DEBUG_FUNCNAME(char* name) {
-    Serial.println(name);
-    return;
+	Serial.println(name);
+	return;
 }
 
+/*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
+/*_		機能名確認用関数					             _*/
+/*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
 void DEBUG_FLAG(signal* sig) {
-    Serial.println("---- FLAG ------------");
-    Serial.print("left normal   : ");
-    Serial.println(sig->ln);
-    Serial.print("left reverse  : ");
-    Serial.println(sig->lr);
-    Serial.print("right normal  : ");
-    Serial.println(sig->rn);
-    Serial.print("right reverse : ");
-    Serial.println(sig->rr);
-    return;
+	Serial.println("---- FLAG ------------");
+	Serial.print("left normal   : ");
+	Serial.println(sig->ln);
+	Serial.print("left reverse  : ");
+	Serial.println(sig->lr);
+	Serial.print("right normal  : ");
+	Serial.println(sig->rn);
+	Serial.print("right reverse : ");
+	Serial.println(sig->rr);
+	return;
 }
 
+/*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
+/*_   前進・後進動作確認用関数                _*/
+/*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
 void DEBUG_PARAM(int pwm_normal, int pwm_reverse) {
-    Serial.print("    NORMAL        : ");
-    Serial.println(pwm_normal);
-    Serial.print("    REVERSE       : ");
-    Serial.println(pwm_reverse);
-    return;
+	Serial.print("    NORMAL        : ");
+	Serial.println(pwm_normal);
+	Serial.print("    REVERSE       : ");
+	Serial.println(pwm_reverse);
+	return;
 }
 
+/*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
+/*_		左車輪前進・後進動作確認用関数	      	_*/
+/*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
 void DEBUG_PARAMLEFT(int pwm_normal, int pwm_reverse) {
-    Serial.print("    LEFT  NORMAL  : ");
-    Serial.println(pwm_normal);
-    Serial.print("    LEFT  REVERSE : ");
-    Serial.println(pwm_reverse);
-    return;
+	Serial.print("    LEFT  NORMAL  : ");
+	Serial.println(pwm_normal);
+	Serial.print("    LEFT  REVERSE : ");
+	Serial.println(pwm_reverse);
+	return;
 }
 
+/*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
+/*_		右車輪前進・後進動作確認用関数	      	_*/
+/*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
 void DEBUG_PARAMRIGHT(int pwm_normal, int pwm_reverse) {
-    Serial.print("    RIGHT NORMAL  : ");
-    Serial.println(pwm_normal);
-    Serial.print("    RIGHT REVERSE : ");
-    Serial.println(pwm_reverse);
-    return;
+	Serial.print("    RIGHT NORMAL  : ");
+	Serial.println(pwm_normal);
+	Serial.print("    RIGHT REVERSE : ");
+	Serial.println(pwm_reverse);
+	return;
 }
+/********************************************/
+/*		DEFINE_LOGGING_FUNCTION_END			      */
+/********************************************/
