@@ -46,17 +46,14 @@ class ClientSocketCom():
 
     def sendMsg(self, msg):
         try:
-            self.client_sock.sendall(msg.encode('UTF-8'))
-            print('Send: ' + msg)              
+            self.client_sock.sendall(msg)
+            #self.client_sock.sendall(msg.encode('UTF-8'))
+            #print('Send: ' + msg)              
         except Exception as error:
             print('Failed to send, exception has occurred.')
             print(error)
             self.stop();
             self.start();
-
-    def sendcmd(self, cmdName, cmdParams):
-        msg = self.getCmd(cmdName, cmdParams)
-        self.sendMsg(msg)
 
     def recvcmd_th(self):
         while True:

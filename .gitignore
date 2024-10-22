@@ -1,3 +1,6 @@
 *.out
 \~*.xlsx
 *.swp
+
+__pycache__
+backup
