@@ -22,11 +22,11 @@ typedef struct{
 
 // Command Function
 
-int cmd_move_catepillar(int);
-int cmd_change_slowmode(int);
-int cmd_turn_onoff_heater(int);
-int cmd_move_arm(int);
-int cmd_emergency_stop(int);
+int32_t cmd_move_catepillar(int32_t);
+int32_t cmd_change_slowmode(int32_t);
+int32_t cmd_turn_onoff_heater(int32_t);
+int32_t cmd_move_arm(int32_t);
+int32_t cmd_emergency_stop(int32_t);
 
 
 // Command Function List

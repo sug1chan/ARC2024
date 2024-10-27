@@ -3,14 +3,14 @@
 /********************************************/
 /*		DEFINE_ARRAY&STRUCT_START			        */
 /********************************************/
-static int pwm_right_normal, pwm_right_reverse, pwm_left_normal, pwm_left_reverse;
-static int is_slow_mode = 0;
-static int old_opt = 0;
+static int32_t pwm_right_normal, pwm_right_reverse, pwm_left_normal, pwm_left_reverse;
+static int32_t is_slow_mode = 0;
+static int32_t old_opt = 0;
 
 typedef struct
 {
-	int lrMove;													/*	キャタピラのパワー(固定値)	*/
-	int pwmCatMove;												/*	キャタピラのパワー(変数)	*/
+	int32_t lrMove;													/*	キャタピラのパワー(固定値)	*/
+	int32_t pwmCatMove;												/*	キャタピラのパワー(変数)	*/
 }lrcat;
 
 
@@ -34,9 +34,9 @@ void get_cmd(opr op, signal* sig);
 
 void DEBUG_FUNCNAME(char* name);
 void DEBUG_FLAG(signal* sig);
-void DEBUG_PARAM(int pwm_normal, int pwm_reverse);
-void DEBUG_PARAMRIGHT(int pwm_normal, int pwm_reverse);
-void DEBUG_PARAMLEFT(int pwm_normal, int pwm_reverse);
+void DEBUG_PARAM(int32_t pwm_normal, int32_t pwm_reverse);
+void DEBUG_PARAMRIGHT(int32_t pwm_normal, int32_t pwm_reverse);
+void DEBUG_PARAMLEFT(int32_t pwm_normal, int32_t pwm_reverse);
 void DEBUG_HEATER(bool is_on);
 /********************************************/
 /*		DEFINE_FUNCTION_PROTOTYPE_END		      */
@@ -71,8 +71,8 @@ void init_robot_operate(void) {
 /*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
 /*_		キャタピラ動作用関数				           _*/
 /*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
-int cmd_move_catepillar(int opt) {
-	for(int i = 0;i < LR_NUM;i++){
+int32_t cmd_move_catepillar(int32_t opt) {
+	for(int32_t i = 0;i < LR_NUM;i++){
 		if((opt & lrnorev[i].lrMove) == lrnorev[i].lrMove){			/*ビットが立っている場合				*/
 			if(is_slow_mode == CAT_MODE_SLOW){
 				lrnorev[i].pwmCatMove = CAT_SLOW;					/*スロー出力を入れる					*/
@@ -101,7 +101,7 @@ int cmd_move_catepillar(int opt) {
 /*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
 /*_		キャタピラスローモード動作用関数	      _*/
 /*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
-int cmd_change_slowmode(int opt) {
+int32_t cmd_change_slowmode(int32_t opt) {
 	// slow mode
 	DEBUG_FUNCNAME("slow_mode");
 
@@ -117,7 +117,7 @@ int cmd_change_slowmode(int opt) {
 /*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
 /*_		ヒーターONOFF用関数					           _*/
 /*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
-int cmd_turn_onoff_heater(int opt){
+int32_t cmd_turn_onoff_heater(int32_t opt){
 	// control heater
 	DEBUG_FUNCNAME("contrl_heater");
 
@@ -134,10 +134,10 @@ int cmd_turn_onoff_heater(int opt){
 /*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
 /*_		アーム動作用関数					             _*/
 /*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
-int cmd_move_arm(int opt) {
+int32_t cmd_move_arm(int32_t opt) {
 	// control robot arm!
 	signal sig;
-	int pwm_normal, pwm_reverse;
+	int32_t pwm_normal, pwm_reverse;
 
 	if (opt == ARM_STOP) {
 		pwm_normal  = 255;
@@ -165,7 +165,7 @@ int cmd_move_arm(int opt) {
 /*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
 /*_		緊急停止用関数						             _*/
 /*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
-int cmd_emergency_stop(int opt) {
+int32_t cmd_emergency_stop(int32_t opt) {
 	cmd_move_catepillar(CAT_NONE);
 	cmd_change_slowmode(CAT_MODE_NORMAL);
 	cmd_turn_onoff_heater(HEATER_OFF);
@@ -177,7 +177,7 @@ int cmd_emergency_stop(int opt) {
 /*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
 /*_		コマンド計算用関数                 	   _*/
 /*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
-void get_cmd(int op, signal* sig) {
+void get_cmd(int32_t op, signal* sig) {
     char ln, lr, rn, rr;
 
     ln = (op & OPR_L_NORMAL)  == OPR_L_NORMAL;
@@ -185,10 +185,10 @@ void get_cmd(int op, signal* sig) {
     rn = (op & OPR_R_NORMAL)  == OPR_R_NORMAL;
     rr = (op & OPR_R_REVERSE) == OPR_R_REVERSE;
 
-    sig->ln = (int)ln;
-    sig->lr = (int)lr;
-    sig->rn = (int)rn;
-    sig->rr = (int)rr;
+    sig->ln = (int32_t)ln;
+    sig->lr = (int32_t)lr;
+    sig->rn = (int32_t)rn;
+    sig->rr = (int32_t)rr;
 
 //    DEBUG_FLAG(sig);
     return;
@@ -231,7 +231,7 @@ void DEBUG_FLAG(signal* sig) {
 /*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
 /*_   前進・後進動作確認用関数                _*/
 /*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
-void DEBUG_PARAM(int pwm_normal, int pwm_reverse) {
+void DEBUG_PARAM(int32_t pwm_normal, int32_t pwm_reverse) {
 	Serial.print("    NORMAL        : ");
 	Serial.println(pwm_normal);
 	Serial.print("    REVERSE       : ");
@@ -242,7 +242,7 @@ void DEBUG_PARAM(int pwm_normal, int pwm_reverse) {
 /*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
 /*_		左車輪前進・後進動作確認用関数	      	_*/
 /*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
-void DEBUG_PARAMLEFT(int pwm_normal, int pwm_reverse) {
+void DEBUG_PARAMLEFT(int32_t pwm_normal, int32_t pwm_reverse) {
 	Serial.print("    LEFT  NORMAL  : ");
 	Serial.println(pwm_normal);
 	Serial.print("    LEFT  REVERSE : ");
@@ -253,7 +253,7 @@ void DEBUG_PARAMLEFT(int pwm_normal, int pwm_reverse) {
 /*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
 /*_		右車輪前進・後進動作確認用関数	      	_*/
 /*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*/
-void DEBUG_PARAMRIGHT(int pwm_normal, int pwm_reverse) {
+void DEBUG_PARAMRIGHT(int32_t pwm_normal, int32_t pwm_reverse) {
 	Serial.print("    RIGHT NORMAL  : ");
 	Serial.println(pwm_normal);
 	Serial.print("    RIGHT REVERSE : ");
