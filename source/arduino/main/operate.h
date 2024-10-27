@@ -21,7 +21,7 @@
 
 //define output catapiller speed
 #define	CAT_NORMAL		(255U)			/*	キャタピラの速度_通常	*/
-#define	CAT_SLOW		(100U)			/*	キャタピラの速度_スロー	*/
+#define	CAT_SLOW		(130U)			/*	キャタピラの速度_スロー	*/
 #define	CAT_NONE		(0U)			/*	キャタピラの速度_スロー	*/
 
 //define output catapiller mode
@@ -38,8 +38,10 @@
 // default
 #define PWM_DEFAULT 255
 
-#define PWM_ARM_DEFAULT        126
+#define PWM_ARM_DEFAULT        180
 #define PWM_ARM_REV_DEFAULT    63
+// #define PWM_ARM_DEFAULT        126
+// #define PWM_ARM_REV_DEFAULT    63
 #define PWM_HAND_DEFAULT       PWM_DEFAULT
 #define PWM_HAND_REV_DEFAULT   PWM_DEFAULT
 #define PWM_L_CATE_DEFAULT     PWM_DEFAULT
