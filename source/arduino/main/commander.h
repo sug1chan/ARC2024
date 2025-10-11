@@ -19,6 +19,13 @@ typedef struct{
 #define EMERGENCY_STOP  5
 #define CMD_MAX         6
 
+#define INIT_VAL_CMD_NONE    0
+#define CAT_MOVE             15
+#define CAT_SLOW_MODE        0
+#define HEATER_MODE          0
+#define ARM_MOVE             0
+#define EMERGENCY_STOP       0
+
 
 // Command Function
 
@@ -38,4 +45,13 @@ const struct cmd_func_list recv_cmd_list[CMD_MAX] = {
     {"HEATER_MODE",    cmd_turn_onoff_heater},
     {"ARM_MOVE",       cmd_move_arm},
     {"EMERGENCY_STOP", cmd_emergency_stop}
+};
+
+const int32_t variable_init_val[CMD_MAX] = {
+    INIT_VAL_CMD_NONE,
+    CAT_MOVE,
+    CAT_SLOW_MODE,
+    HEATER_MODE,
+    ARM_MOVE,
+    EMERGENCY_STOP
 };

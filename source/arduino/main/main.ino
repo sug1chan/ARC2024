@@ -62,6 +62,7 @@ void loop() {
       }
     }
 
+    variable_init();
     client.stop();
     Serial.println(SEPARATE);
     Serial.println("Disconnected.");
@@ -90,4 +91,12 @@ void show_data(String name, int32_t no, int32_t opt) {
     Serial.print("opt = ");
     to_bin(opt);
     Serial.println("");
+}
+
+void variable_init(void){
+  cmd_func_list cmd_list;
+  for (int32_t i = 1; CMD_MAX > i; i ++) {
+    cmd_list = recv_cmd_list[i];
+    cmd_list.cmd_func(variable_init_val[i]);
+  }
 }
